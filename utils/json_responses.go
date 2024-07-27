@@ -18,3 +18,10 @@ func ReadJSON(r *http.Request, data any) error {
 func WriteError(w http.ResponseWriter, status int, message string) {
 	WriteJSON(w, status, map[string]string{"error": message})
 }
+
+// WriteError sends a JSON response with multiple error messages.
+func WriteErrors(w http.ResponseWriter, status int, messages []string) {
+	errorResponse := map[string][]string{"errors": messages}
+
+	WriteJSON(w, status, errorResponse)
+}
