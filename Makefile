@@ -1,7 +1,7 @@
 push:
-	@go mod tidy
-	@git add .
-	@git commit -m "new thing"
-	@git push
-	@git tag "1.5"
-	@ git push --tags
+	go mod tidy
+	git add .
+	git commit -m "Update dependencies and code"
+	git push origin main
+	git tag "v1.5"
+	git push origin --tags
