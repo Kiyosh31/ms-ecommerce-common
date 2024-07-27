@@ -3,5 +3,5 @@ push:
 	@git add .
 	@git commit -m "new thing"
 	@git push
-	@git tag "1.4"
+	@git tag "1.5"
 	@ git push --tags
