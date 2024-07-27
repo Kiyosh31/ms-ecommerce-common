@@ -19,9 +19,18 @@ func WriteError(w http.ResponseWriter, status int, message string) {
 	WriteJSON(w, status, map[string]string{"error": message})
 }
 
-// WriteError sends a JSON response with multiple error messages.
-func WriteErrors(w http.ResponseWriter, status int, messages []string) {
+func WriteErrors(w http.ResponseWriter, status int, errors []error) {
+	// Convert errors to a slice of strings
+	messages := make([]string, len(errors))
+	for i, err := range errors {
+		if err != nil {
+			messages[i] = err.Error()
+		}
+	}
+
+	// Create the error response map
 	errorResponse := map[string][]string{"errors": messages}
 
+	// Use the WriteJSON function to send the JSON response
 	WriteJSON(w, status, errorResponse)
 }
