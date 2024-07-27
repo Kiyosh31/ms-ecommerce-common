@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func ManageRpcErrors(err error, w http.ResponseWriter) {
+func WriteRpcError(err error, w http.ResponseWriter) {
 	status := status.Convert(err)
 
 	if status != nil {
