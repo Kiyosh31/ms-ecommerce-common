@@ -42,7 +42,7 @@ func InvalidArgumentError(violations []*errdetails.BadRequest_FieldViolation) er
 func ParseInterfaceToString(word interface{}) (string, error) {
 	s, ok := word.(string)
 	if !ok {
-		return "nil", fmt.Errorf("error while parsing interface to string")
+		return "nil", fmt.Errorf("error while parsing interface (_id mongodb) to string")
 	}
 
 	return s, nil
