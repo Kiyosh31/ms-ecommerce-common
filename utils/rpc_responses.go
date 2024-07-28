@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -40,10 +41,10 @@ func InvalidArgumentError(violations []*errdetails.BadRequest_FieldViolation) er
 }
 
 func ParseInterfaceToString(word interface{}) (string, error) {
-	s, ok := word.(string)
+	userId, ok := word.(primitive.ObjectID)
 	if !ok {
-		return "nil", fmt.Errorf("error while parsing interface (_id mongodb) to string")
+		return "", fmt.Errorf("failed to parse _id to string")
 	}
 
-	return s, nil
+	return userId.Hex(), nil
 }
