@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"net/http"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -36,4 +37,13 @@ func InvalidArgumentError(violations []*errdetails.BadRequest_FieldViolation) er
 	}
 
 	return statusDetails.Err()
+}
+
+func ParseInterfaceToString(word interface{}) (string, error) {
+	s, ok := word.(string)
+	if !ok {
+		return "nil", fmt.Errorf("error while parsing interface to string")
+	}
+
+	return s, nil
 }
