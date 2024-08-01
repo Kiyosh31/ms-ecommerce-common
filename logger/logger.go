@@ -7,11 +7,10 @@ import (
 
 var (
 	logger      *zap.Logger
-	sugar       *zap.SugaredLogger
 	serviceName string
 )
 
-func InitLogger(name string) (*zap.Logger, *zap.SugaredLogger, error) {
+func InitLogger(name string) (*zap.Logger, error) {
 	serviceName = name
 	config := zap.Config{
 		Encoding:    "json",
@@ -34,11 +33,10 @@ func InitLogger(name string) (*zap.Logger, *zap.SugaredLogger, error) {
 	var err error
 	logger, err = config.Build()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	sugar = logger.Sugar()
-	return logger, sugar, nil
+	return logger, nil
 }
 
 func Sync() {
