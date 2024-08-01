@@ -7,36 +7,36 @@ import (
 
 var (
 	logger      *zap.Logger
-	sugar       *zap.SugaredLogger
 	serviceName string
 )
 
-func InitLogger(name string) (*zap.Logger, *zap.SugaredLogger, error) {
+func InitLogger(name string) (*zap.Logger, error) {
 	serviceName = name
-	config := zap.NewDevelopmentConfig()
-	config.Encoding = "json"
-	config.EncoderConfig = zapcore.EncoderConfig{
-		TimeKey:        "timestamp",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		MessageKey:     "msg",
-		StacktraceKey:  "stacktrace",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseColorLevelEncoder, // Use LowercaseColorLevelEncoder for colored logs
-		EncodeTime:     zapcore.ISO8601TimeEncoder,
-		EncodeDuration: zapcore.StringDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+	config := zap.Config{
+		Encoding:    "json",
+		Level:       zap.NewAtomicLevelAt(zap.InfoLevel),
+		OutputPaths: []string{"stdout"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:        "timestamp",
+			LevelKey:       "level",
+			NameKey:        "logger",
+			MessageKey:     "msg",
+			StacktraceKey:  "stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.LowercaseLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.StringDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
+		},
 	}
 
 	var err error
 	logger, err = config.Build()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	sugar = logger.Sugar()
-
-	return logger, sugar, nil
+	return logger, nil
 }
 
 func Sync() {
