@@ -3,17 +3,16 @@ package customlogger
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
 
-func ReadRequestPayload(r *http.Request) (string, error) {
+func ReadRequestPayload(r *http.Request) string {
 	// Read the request body
-	bodyBytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		return "nil", fmt.Errorf("error reading req body: %v", err)
-	}
+	bodyBytes, _ := io.ReadAll(r.Body)
+	// if err != nil {
+	// 	return "nil", fmt.Errorf("error reading req body: %v", err)
+	// }
 
 	// Reset the request body so it can be read again later
 	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
@@ -22,9 +21,9 @@ func ReadRequestPayload(r *http.Request) (string, error) {
 	var bodyMap map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &bodyMap); err == nil {
 		compactBody, _ := json.Marshal(bodyMap) // Compact JSON format
-		return string(compactBody), nil
+		return string(compactBody)
 	} else {
 		// Log as raw bytes if unmarshalling fails
-		return string(bodyBytes), nil
+		return string(bodyBytes)
 	}
 }
