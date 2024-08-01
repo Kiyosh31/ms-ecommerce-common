@@ -7,6 +7,7 @@ import (
 
 var (
 	logger      *zap.Logger
+	sugar       *zap.SugaredLogger
 	serviceName string
 )
 
@@ -36,6 +37,7 @@ func InitLogger(name string) (*zap.Logger, error) {
 		return nil, err
 	}
 
+	sugar = logger.Sugar()
 	return logger, nil
 }
 
