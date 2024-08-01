@@ -6,44 +6,42 @@ import (
 )
 
 var (
-	Logger      *zap.Logger
-	Sugar       *zap.SugaredLogger
+	logger      *zap.Logger
+	sugar       *zap.SugaredLogger
 	serviceName string
 )
 
-func InitLogger(name string) {
+func InitLogger(name string) (*zap.Logger, *zap.SugaredLogger, error) {
 	serviceName = name
-	config := zap.Config{
-		Encoding:    "json",
-		Level:       zap.NewAtomicLevelAt(zap.InfoLevel),
-		OutputPaths: []string{"stdout"},
-		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:  "timestamp",
-			LevelKey: "level",
-			NameKey:  "logger",
-			// CallerKey:      "caller", // Remove this line
-			MessageKey:     "msg",
-			StacktraceKey:  "stacktrace",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapcore.LowercaseLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   zapcore.ShortCallerEncoder,
-		},
+	config := zap.NewDevelopmentConfig()
+	config.Encoding = "json"
+	config.EncoderConfig = zapcore.EncoderConfig{
+		TimeKey:        "timestamp",
+		LevelKey:       "level",
+		NameKey:        "logger",
+		MessageKey:     "msg",
+		StacktraceKey:  "stacktrace",
+		LineEnding:     zapcore.DefaultLineEnding,
+		EncodeLevel:    zapcore.LowercaseColorLevelEncoder, // Use LowercaseColorLevelEncoder for colored logs
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+		EncodeCaller:   zapcore.ShortCallerEncoder,
 	}
 
 	var err error
-	Logger, err = config.Build()
+	logger, err = config.Build()
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 
-	Sugar = Logger.Sugar()
+	sugar = logger.Sugar()
+
+	return logger, sugar, nil
 }
 
 func Sync() {
-	if Logger != nil {
-		Logger.Sync()
+	if logger != nil {
+		logger.Sync()
 	}
 }
 
@@ -56,17 +54,17 @@ func log(level, msg string, req, res interface{}) {
 
 	switch level {
 	case "debug":
-		Logger.Debug(msg, fields...)
+		logger.Debug(msg, fields...)
 	case "info":
-		Logger.Info(msg, fields...)
+		logger.Info(msg, fields...)
 	case "warn":
-		Logger.Warn(msg, fields...)
+		logger.Warn(msg, fields...)
 	case "error":
-		Logger.Error(msg, fields...)
+		logger.Error(msg, fields...)
 	case "fatal":
-		Logger.Fatal(msg, fields...)
+		logger.Fatal(msg, fields...)
 	default:
-		Logger.Info(msg, fields...)
+		logger.Info(msg, fields...)
 	}
 }
 
