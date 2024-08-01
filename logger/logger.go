@@ -7,10 +7,11 @@ import (
 
 var (
 	logger      *zap.Logger
+	sugar       *zap.SugaredLogger
 	serviceName string
 )
 
-func InitLogger(name string) (*zap.Logger, error) {
+func InitLogger(name string) (*zap.Logger, *zap.SugaredLogger, error) {
 	serviceName = name
 	config := zap.Config{
 		Encoding:    "json",
@@ -33,10 +34,11 @@ func InitLogger(name string) (*zap.Logger, error) {
 	var err error
 	logger, err = config.Build()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return logger, nil
+	sugar = logger.Sugar()
+	return logger, sugar, nil
 }
 
 func Sync() {
@@ -48,8 +50,12 @@ func Sync() {
 func log(level, msg string, req, res interface{}) {
 	fields := []zap.Field{
 		zap.String("caller", serviceName),
-		zap.Any("req", req),
-		zap.Any("res", res),
+	}
+	if req != nil {
+		fields = append(fields, zap.Any("req", req))
+	}
+	if res != nil {
+		fields = append(fields, zap.Any("res", res))
 	}
 
 	switch level {
@@ -86,4 +92,43 @@ func Error(msg string, req, res interface{}) {
 
 func Fatal(msg string, req, res interface{}) {
 	log("fatal", msg, req, res)
+}
+
+// Infof logs a formatted info message with optional req and res fields.
+func Infof(msg string, req, res interface{}, args ...interface{}) {
+	sugar.Infow(msg, appendFields(req, res, args...)...)
+}
+
+// Debugf logs a formatted debug message with optional req and res fields.
+func Debugf(msg string, req, res interface{}, args ...interface{}) {
+	sugar.Debugw(msg, appendFields(req, res, args...)...)
+}
+
+// Warnf logs a formatted warn message with optional req and res fields.
+func Warnf(msg string, req, res interface{}, args ...interface{}) {
+	sugar.Warnw(msg, appendFields(req, res, args...)...)
+}
+
+// Errorf logs a formatted error message with optional req and res fields.
+func Errorf(msg string, req, res interface{}, args ...interface{}) {
+	sugar.Errorw(msg, appendFields(req, res, args...)...)
+}
+
+// Fatalf logs a formatted fatal message with optional req and res fields.
+func Fatalf(msg string, req, res interface{}, args ...interface{}) {
+	sugar.Fatalw(msg, appendFields(req, res, args...)...)
+}
+
+// appendFields adds the req and res fields if they are provided.
+func appendFields(req, res interface{}, args ...interface{}) []interface{} {
+	fields := []interface{}{
+		"caller", serviceName,
+	}
+	if req != nil {
+		fields = append(fields, "req", req)
+	}
+	if res != nil {
+		fields = append(fields, "res", res)
+	}
+	return append(fields, args...)
 }
