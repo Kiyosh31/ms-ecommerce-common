@@ -3,5 +3,5 @@ push:
 	git add .
 	git commit -m "Update dependencies and code"
 	git push
-	git tag "v1.17.3"
+	git tag "v1.17.4"
 	git push origin --tags
