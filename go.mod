@@ -3,6 +3,7 @@ module github.com/Kiyosh31/ms-ecommerce-common
 go 1.22.5
 
 require (
+	github.com/rabbitmq/amqp091-go v1.10.0
 	go.mongodb.org/mongo-driver v1.16.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.23.0
