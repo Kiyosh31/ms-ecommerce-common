@@ -9,14 +9,14 @@ import (
 )
 
 type UserClaims struct {
-	ID      int64  `json:"id"`
+	ID      string `json:"id"`
 	Email   string `json:"email"`
 	IsAdmin bool   `json:"isAdmin"`
 	jwt.RegisteredClaims
 }
 
 func NewUserClaims(
-	id int64,
+	id string,
 	email string,
 	isAdmin bool,
 	duration *time.Duration,

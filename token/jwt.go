@@ -18,7 +18,7 @@ func NewJwtCreator(secretKey string) *JwtCreator {
 }
 
 func (creator *JwtCreator) CreateToken(
-	id int64,
+	id string,
 	email string,
 	isAdmin bool,
 	duration time.Duration,
