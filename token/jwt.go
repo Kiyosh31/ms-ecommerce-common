@@ -18,77 +18,45 @@ func NewJwtCreator(secretKey string) *JwtCreator {
 }
 
 func (c *JwtCreator) CreateToken(
-	id string,
 	email string,
 	role string,
-	duration time.Duration,
-) (
-	string,
-	*UserClaims,
-	error,
-) {
+	duration int,
+) (string, error) {
 	claims := jwt.MapClaims{
 		"email": email,
 		"role":  role,
-		"exp":   time.Now().Add(time.Hour * 1).Unix(), // Expires after 1 hour
+		"exp":   time.Now().Add(time.Duration(duration) * time.Minute).Unix(),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString([]byte(c.secretKey))
 	if err != nil {
-		return "", nil, fmt.Errorf("failed to create token: %w", err)
+		return "", fmt.Errorf("failed to create token: %w", err)
 	}
-	return ss, nil, nil
 
-	// claims, err := NewUserClaims(id, email, isAdmin, &duration)
-	// if err != nil {
-	// 	return "", nil, err
-	// }
-
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// tokenStr, err := token.SignedString([]byte(creator.secretKey))
-	// if err != nil {
-	// 	return "", nil, fmt.Errorf("error signing token: %v", err)
-	// }
-
-	// return tokenStr, claims, nil
+	return ss, nil
 }
 
-func (c *JwtCreator) VerifyToken(tokenStr string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+func (c *JwtCreator) VerifyToken(tokenString string) (claims jwt.MapClaims, err error) {
+	// Use the jwt.Parse function to parse the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method (HS256 in this case)
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Method)
+		}
+		// Return the secret key for signing verification
 		return []byte(c.secretKey), nil
 	})
+
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			return nil, fmt.Errorf("invalid token signature")
-		}
-		return nil, fmt.Errorf("failed to verify token: %w", err)
+		return nil, err
 	}
-	if !token.Valid {
-		return nil, fmt.Errorf("token is invalid")
-	}
+
+	// Extract claims from the valid token
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return nil, fmt.Errorf("token claims are not of type MapClaims")
+		return nil, fmt.Errorf("unable to convert claims to MapClaims")
 	}
 
 	return claims, nil
-	// token, err := jwt.ParseWithClaims(tokenStr, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-	// 	// verify with signed method
-	// 	_, ok := token.Method.(*jwt.SigningMethodHMAC)
-	// 	if !ok {
-	// 		return nil, fmt.Errorf("invalid signin method")
-	// 	}
-
-	// 	return []byte(creator.secretKey), nil
-	// })
-	// if err != nil {
-	// 	return nil, fmt.Errorf("error parsing token: %v", err)
-	// }
-
-	// claims, ok := token.Claims.(*UserClaims)
-	// if !ok {
-	// 	return nil, fmt.Errorf("invalid token claims")
-	// }
-
-	// return claims, nil
 }
